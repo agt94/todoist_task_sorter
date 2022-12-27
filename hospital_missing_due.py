@@ -77,19 +77,17 @@ class Todoist(object):
                     pass
                 else:
                     hospital.append(item)
-
-        
         return hospital
 
     def update_hospital(self):
         for item in self.hospital:
-            new_labels = item['labels']
-            new_labels.append(self.hospital_label_id)
-            item.update(labels=new_labels )
+            new_labels = item.labels
+            new_labels.append(self.hospital_label)
+            self.api.update_task(task_id = item.id, labels = new_labels, project_id = self.hospital_id )
+
             
-            item.move(project_id = self.hospital_id)
-            self.api.commit()
-        self.api.commit()
+
+
 
 
 
