@@ -21,6 +21,7 @@ def get_token():
 
 from todoist_api_python.api import TodoistAPI
 
+#https://github.com/Doist/todoist-api-python/issues/8  move tasks to different project
 
 class Todoist_program(object):
     def __init__(self):
@@ -62,7 +63,71 @@ class Todoist_program(object):
         self.missing_due = self.get_no_duedate()
         print("Missing due")
         print(self.missing_due)
+
+    def move_task(task, project_id: str = None, section_id: str = None, \
+                  parent_id: str = None, order: int = None):
+        """'Moves' a task to a different project/ section or parent by creating a \
+            identical new one and deleting the old one.
+
+        Args:
+            task (TodoistAPI task object): task-object of the task to move.
+            project_id (str, optional): Where the task should be moved to. \
+                Defaults to None.
+            section_id (str, optional): Where the task should be moved to. \
+                Defaults to None.
+            parent_id (str, optional): Where the task should be moved to. \
+                Defaults to None.
+            order (int, optional): Where the task should be moved to. \
+                Defaults to None.
+
+        Returns:
+            task (TodoistAPI task object): If successful. Else returns None.
+        """
+        api = TodoistAPI(get_token())
+        try:
+            comments = api.get_comments(task_id=task.id)
+        except Exception as error:
+            print(error)
+            return False
+        else:
+            try:
+                new_task = api.add_task(
+                    content=task.content,
+                    description=task.description,
+                    labels=task.labels,
+                    priority=task.priority,
+                    due=task.due,
+                    assignee_id=task.assignee_id,
+                    project_id=project_id,
+                    section_id=section_id,
+                    parent_id=parent_id,
+                    order=order
+                )
+            except Exception as error:
+                print(error)
+                return False
+            else:
+                for comment in comments:
+                    try:
+                        created_comment = api.add_comment(
+                            content=comment.content,
+                            task_id=task.id,
+                            attachment=comment.attachment
+                        )
+                    except Exception as error:
+                        print(error)
+                        return False
+                    else:
+                        try:
+                            api.delete_task(task_id=task.id)
+                        except Exception as error:
+                            print(error)
+                            return False
+                        else:
+                            return new_task
+
 # Funciones para asignar etiquetas de hospital a tareas con numeros de historia o palabras clave
+
     def get_hospital(self):
         hospital = []
         for item in self.api.notes:
@@ -77,7 +142,8 @@ class Todoist_program(object):
         for item in self.hospital:
             new_labels = item.labels
             new_labels.append(self.hospital_label)
-            self.api.update_task(task_id = item.id, labels = new_labels, project_id = self.hospital_id )
+            self.api.update_task(task_id = item.id, labels = new_labels )
+            #project_id = self.hospital_id  faltaría mover las tareas al proyecto hospital
 
     # Dar fecha a aquellas tareas que se hayan añadido a la bandeja de entrada pero que no sean subtareas.
     def get_no_duedate(self):
