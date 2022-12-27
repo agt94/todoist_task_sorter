@@ -3,9 +3,9 @@ import re
 import logging
 from datetime import datetime
 from dateutil import tz
-from todoist.api import TodoistAPI
-from todoist.managers.notes import NotesManager
-from todoist.managers.items import ItemsManager
+#from todoist.api import TodoistAPI
+#from todoist.managers.notes import NotesManager
+#from todoist.managers.items import ItemsManager
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -36,7 +36,7 @@ class Todoist(object):
 
         #print(dir(self.api))
         #self.api.sync()
-        self.api.notes = get_tasks(self.api)
+        self.api.notes = self.api.get_tasks()
         self.api.projects = self.api.get_projects()
         print(self.api.projects)
         hospital_id = [project['id'] for project in self.api.projects if project['name'] == 'hospital']
