@@ -32,10 +32,10 @@ class Todoist(object):
         calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'calendar']
         to_calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'to_calendar']
         #in_calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'in_calendar']
-
+        print(hospital_id)
 
         inbox_id = [project['id'] for project in self.api.state['projects'] if project['name'] == 'Inbox']
-
+        print(inbox_id)
         self.inbox_id = inbox_id[0]
         self.hospital_id = hospital_id[0]
 
