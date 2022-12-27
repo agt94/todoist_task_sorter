@@ -19,6 +19,7 @@ def get_token():
         raise Exception('Please set the API token in environment variable.')
     return token
 
+from todoist_api_python.api import TodoistAPI
 
 api_2 = TodoistAPI(get_token())
 try:
@@ -26,6 +27,8 @@ try:
     print(projects)
 except Exception as error:
     print(error)
+
+from todoist.api import TodoistAPI
 
 class Todoist(object):
     def __init__(self):
