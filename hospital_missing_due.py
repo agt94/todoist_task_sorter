@@ -32,7 +32,7 @@ class Todoist(object):
         self.api.projects = self.api.get_projects()
         self.api.labels = self.api.get_labels()
         print(self.api.labels)
-        print(self.api.projects[0:2])
+        print(self.api.projects[0]["name"])
         print(type(self.api.projects ))
 
         hospital_id = [project['id'] for project in self.api.projects if project['name'] == 'hospital']
