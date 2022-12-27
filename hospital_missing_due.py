@@ -42,11 +42,12 @@ class Todoist(object):
 
         self.inbox_id = inbox_id[0]
         self.hospital_id = hospital_id[0]
-        print(inbox_id)
-        print(hospital_id)
+        print(self.inbox_id)
+        print(self.hospital_id)
 
+        self.hospital_label = 'hospital'
         hospital_label_ids = [label.id for label in self.api.labels if label.name == 'hospital']
-
+        self.calendar_label = 'calendar'
         calendar_label_ids = [label.id for label in self.api.labels if label.name == 'calendar']
         to_calendar_label_ids = [label.id for label in self.api.labels if label.name == 'to_calendar']
         #in_calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'in_calendar']
@@ -54,12 +55,12 @@ class Todoist(object):
 
         assert (len(hospital_label_ids) == 1)
         self.hospital_label_id = hospital_label_ids[0]
-        print("Print hopsital label_id ")
+        print("Print hospital label_id ")
         print(self.hospital_label_id)
 
         self.hospital = self.get_hospital()
-
-        calendar_project_id = [project['id'] for project in self.api.state['projects'] if project['name'] == 'calendar']
+        print(self.hospital)
+        calendar_project_id = [project.id for project in self.api.projects if project.name == 'calendar']
         self.calendar_project_id = calendar_project_id[0]
         self.calendar_label_id = calendar_label_ids[0]
         self.to_calendar_label_id = to_calendar_label_ids[0]
@@ -70,9 +71,9 @@ class Todoist(object):
 # Funciones para asignar etiquetas de hospital a tareas con numeros de historia o palabras clave
     def get_hospital(self):
         hospital = []
-        for item in self.api.state['items']:
-            if re.search(r'[0-9]{5}|revis|AP |ap |PV |jefe |cultiv|cura|herida|biops|comit|coment', item['content']) and item['parent_id'] is None and self.hospital_label_id not in item['labels'] and self.inbox_id == item['project_id'] : #
-                if re.search(r'http', item['content']):
+        for item in self.api.notes:
+            if re.search(r'[0-9]{5}|revis|AP |ap |PV |jefe |cultiv|cura|herida|biops|comit|coment', item.content) and item.parent_id is None and self.hospital_label not in item.labels and self.inbox_id == item.project_id : #
+                if re.search(r'http', item.content):
                     pass
                 else:
                     hospital.append(item)
@@ -89,6 +90,9 @@ class Todoist(object):
             item.move(project_id = self.hospital_id)
             self.api.commit()
         self.api.commit()
+
+
+
 # Asignar la @calendar a tareas de alta prioridad para que mediante un applet ppuedan aparecer en calendario de Google y en widget.
     def get_calendar(self):
         calendar = []
