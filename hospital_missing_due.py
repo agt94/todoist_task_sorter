@@ -22,7 +22,7 @@ def get_token():
 from todoist_api_python.api import TodoistAPI
 
 
-class Todoist(object):
+class Todoist_program(object):
     def __init__(self):
         self.api = TodoistAPI(get_token())
 
@@ -98,7 +98,7 @@ class Todoist(object):
 
 
 def main():
-    todo = Todoist()
+    todo = Todoist_program()
     todo.update_hospital()
     todo.update_missing_due()
 
