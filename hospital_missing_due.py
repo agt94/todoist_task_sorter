@@ -27,6 +27,7 @@ class Todoist(object):
         #print(dir(self.api))
         self.api.sync()
         self.api.notes = NotesManager(self.api)
+        print(self.api.state['projects'])
         hospital_id = [project['id'] for project in self.api.state['projects'] if project['name'] == 'hospital']
         hospital_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'hospital']
         calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'calendar']
