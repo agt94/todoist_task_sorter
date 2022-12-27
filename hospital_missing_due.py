@@ -20,6 +20,13 @@ def get_token():
     return token
 
 
+api_2 = TodoistAPI(get_token())
+try:
+    projects = api_2.get_projects()
+    print(projects)
+except Exception as error:
+    print(error)
+
 class Todoist(object):
     def __init__(self):
         self.api = TodoistAPI(get_token())
