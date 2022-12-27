@@ -48,9 +48,7 @@ class Todoist(object):
         self.hospital_label = 'hospital'
         hospital_label_ids = [label.id for label in self.api.labels if label.name == 'hospital']
         self.calendar_label = 'calendar'
-        calendar_label_ids = [label.id for label in self.api.labels if label.name == 'calendar']
-        to_calendar_label_ids = [label.id for label in self.api.labels if label.name == 'to_calendar']
-        #in_calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'in_calendar']
+
 
 
         assert (len(hospital_label_ids) == 1)
@@ -60,12 +58,19 @@ class Todoist(object):
 
         self.hospital = self.get_hospital()
         print(self.hospital)
+
+        calendar_label_ids = [label.id for label in self.api.labels if label.name == 'calendar']
+        self.to_calendar_label = 'to_calendar'
+        self.calendar_label = 'calendar'
+        to_calendar_label_ids = [label.id for label in self.api.labels if label.name == 'to_calendar']
+        # in_calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'in_calendar']
         calendar_project_id = [project.id for project in self.api.projects if project.name == 'calendar']
         self.calendar_project_id = calendar_project_id[0]
         self.calendar_label_id = calendar_label_ids[0]
         self.to_calendar_label_id = to_calendar_label_ids[0]
         #self.in_calendar_label_id = in_calendar_label_ids[0]
         self.calendar = self.get_calendar()
+        print(self.calendar)
         self.tasks_in_calendar =self.get_tasks_calendar_project()
         self.missing_due = self.get_no_duedate()
 # Funciones para asignar etiquetas de hospital a tareas con numeros de historia o palabras clave
@@ -85,20 +90,18 @@ class Todoist(object):
             new_labels.append(self.hospital_label)
             self.api.update_task(task_id = item.id, labels = new_labels, project_id = self.hospital_id )
 
-            
-
-
-
-
-
 # Asignar la @calendar a tareas de alta prioridad para que mediante un applet ppuedan aparecer en calendario de Google y en widget.
     def get_calendar(self):
         calendar = []
-        for item in self.api.state['items']:
-            if (item['priority'] >2 or self.to_calendar_label_id in item['labels']) and item['due'] is not None and self.calendar_label_id not in item['labels'] and  self.calendar_project_id  != item['project_id']: #tareas prioritarias y que no tengan ya asignada esa etiqueta
+        for item in self.api.notes:
+            if (item.priority >2 or self.to_calendar_label_id in item.labels) and item.due is not None and self.calendar_label not in item.labels and  self.calendar_project_id  != item.project_id: #tareas prioritarias y que no tengan ya asignada esa etiqueta
                 calendar.append(item)
 
         return calendar
+
+
+    ######################## por adaptar
+
     def get_tasks_calendar_project(self):
         tasks_in_calendar = []
         for item in self.api.state['items']:
