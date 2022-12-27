@@ -38,8 +38,11 @@ class Todoist(object):
         #self.api.sync()
         self.api.notes = self.api.get_tasks()
         self.api.projects = self.api.get_projects()
+        self.api.labels = self.api.get_labels()
+        print(self.api.labels)
         print(self.api.projects)
         print(type(self.api.projects ))
+
         hospital_id = [project['id'] for project in self.api.projects if project['name'] == 'hospital']
 
         inbox_id = [project['id'] for project in self.api.projects if project['name'] == 'Inbox']
@@ -49,9 +52,9 @@ class Todoist(object):
         print(inbox_id)
         print(hospital_id)
 
-        hospital_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'hospital']
-        calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'calendar']
-        to_calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'to_calendar']
+        hospital_label_ids = [label['id'] for label in self.api.labels if label['name'] == 'hospital']
+        calendar_label_ids = [label['id'] for label in self.api.labels if label['name'] == 'calendar']
+        to_calendar_label_ids = [label['id'] for label in self.api.labels if label['name'] == 'to_calendar']
         #in_calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'in_calendar']
 
 
