@@ -33,26 +33,30 @@ class Todoist(object):
         self.api.labels = self.api.get_labels()
         print(self.api.labels)
         print("Print inbox:")
-        print(type(self.api.projects[0].name))
+        print((self.api.projects[0].name))
         print(type(self.api.projects ))
 
-        hospital_id = [project['id'] for project in self.api.projects if project['name'] == 'hospital']
+        hospital_id = [project.id for project in self.api.projects if project.name == 'hospital']
 
-        inbox_id = [project['id'] for project in self.api.projects if project['name'] == 'Inbox']
+        inbox_id = [project.id for project in self.api.projects if project.name == 'Inbox']
 
         self.inbox_id = inbox_id[0]
         self.hospital_id = hospital_id[0]
         print(inbox_id)
         print(hospital_id)
 
-        hospital_label_ids = [label['id'] for label in self.api.labels if label['name'] == 'hospital']
-        calendar_label_ids = [label['id'] for label in self.api.labels if label['name'] == 'calendar']
-        to_calendar_label_ids = [label['id'] for label in self.api.labels if label['name'] == 'to_calendar']
+        hospital_label_ids = [label.id for label in self.api.labels if label.name == 'hospital']
+
+        calendar_label_ids = [label.id for label in self.api.labels if label.name == 'calendar']
+        to_calendar_label_ids = [label.id for label in self.api.labels if label.name == 'to_calendar']
         #in_calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'in_calendar']
 
 
         assert (len(hospital_label_ids) == 1)
         self.hospital_label_id = hospital_label_ids[0]
+        print("Print hopsital label_id ")
+        print(self.hospital_label_id)
+
         self.hospital = self.get_hospital()
 
         calendar_project_id = [project['id'] for project in self.api.state['projects'] if project['name'] == 'calendar']
