@@ -21,14 +21,6 @@ def get_token():
 
 from todoist_api_python.api import TodoistAPI
 
-api_2 = TodoistAPI(get_token())
-try:
-    projects = api_2.get_projects()
-    #print(projects)
-except Exception as error:
-    print(error)
-
-
 
 class Todoist(object):
     def __init__(self):
@@ -40,7 +32,7 @@ class Todoist(object):
         self.api.projects = self.api.get_projects()
         self.api.labels = self.api.get_labels()
         print(self.api.labels)
-        print(self.api.projects)
+        print(self.api.projects[0:2])
         print(type(self.api.projects ))
 
         hospital_id = [project['id'] for project in self.api.projects if project['name'] == 'hospital']
