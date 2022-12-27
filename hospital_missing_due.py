@@ -24,11 +24,11 @@ from todoist_api_python.api import TodoistAPI
 api_2 = TodoistAPI(get_token())
 try:
     projects = api_2.get_projects()
-    print(projects)
+    #print(projects)
 except Exception as error:
     print(error)
 
-from todoist.api import TodoistAPI
+
 
 class Todoist(object):
     def __init__(self):
@@ -36,19 +36,23 @@ class Todoist(object):
 
         #print(dir(self.api))
         self.api.sync()
-        self.api.notes = NotesManager(self.api)
-        print(self.api.state['projects'])
-        hospital_id = [project['id'] for project in self.api.state['projects'] if project['name'] == 'hospital']
+        self.api.notes = get_tasks(self.api)
+        self.api.projects = self.api.get_projects()
+        print(self.api.projects)
+        hospital_id = [project['id'] for project in self.api.projects if project['name'] == 'hospital']
+
+        inbox_id = [project['id'] for project in self.api.projects if project['name'] == 'Inbox']
+
+        self.inbox_id = inbox_id[0]
+        self.hospital_id = hospital_id[0]
+        print(inbox_id)
+        print(hospital_id)
+
         hospital_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'hospital']
         calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'calendar']
         to_calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'to_calendar']
         #in_calendar_label_ids = [label['id'] for label in self.api.state['labels'] if label['name'] == 'in_calendar']
-        print(hospital_id)
-
-        inbox_id = [project['id'] for project in self.api.state['projects'] if project['name'] == 'Inbox']
-        print(inbox_id)
-        self.inbox_id = inbox_id[0]
-        self.hospital_id = hospital_id[0]
+                
 
         assert (len(hospital_label_ids) == 1)
         self.hospital_label_id = hospital_label_ids[0]
