@@ -39,6 +39,7 @@ class Todoist(object):
         self.api.notes = self.api.get_tasks()
         self.api.projects = self.api.get_projects()
         print(self.api.projects)
+        print(type(self.api.projects ))
         hospital_id = [project['id'] for project in self.api.projects if project['name'] == 'hospital']
 
         inbox_id = [project['id'] for project in self.api.projects if project['name'] == 'Inbox']
