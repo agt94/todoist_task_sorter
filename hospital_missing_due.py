@@ -139,8 +139,8 @@ class Todoist_program(object):
 
 def main():
     todo = Todoist_program()
-    todo.update_hospital()
     todo.update_missing_due()
+    todo.update_hospital()
     todo.send_to_calendar()
     print("run succesfully!")
 
