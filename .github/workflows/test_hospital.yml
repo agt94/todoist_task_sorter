@@ -1,4 +1,4 @@
-name: habitist
+name: task_sorter_test
 
 
 on:
@@ -19,7 +19,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Run habitist
+    - name: Run task_sorter_test
       env:
         TODOIST_APIKEY: ${{ secrets.TODOIST_APIKEY }}
       run: |
