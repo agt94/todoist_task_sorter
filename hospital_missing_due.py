@@ -8,9 +8,9 @@ from todoist_api_python.api import TodoistAPI
 from uuid import uuid4
 import requests
 
-#from todoist.api import TodoistAPI
-#from todoist.managers.notes import NotesManager
-#from todoist.managers.items import ItemsManager
+# from todoist.api import TodoistAPI
+# from todoist.managers.notes import NotesManager
+# from todoist.managers.items import ItemsManager
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
