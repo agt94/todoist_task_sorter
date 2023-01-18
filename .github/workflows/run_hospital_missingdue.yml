@@ -3,7 +3,7 @@ name: task_sorter_scheduled
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "*/15 7-23 * * *"
 jobs:
   build:
 
@@ -21,6 +21,7 @@ jobs:
         pip install -r requirements.txt
     - name: Run task_sorter_scheduled
       env:
+        TZ: Europe/Madrid
         TODOIST_APIKEY: ${{ secrets.TODOIST_APIKEY }}
       run: |
         python hospital_missing_due.py
