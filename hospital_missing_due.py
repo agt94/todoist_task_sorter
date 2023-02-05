@@ -8,6 +8,7 @@ from todoist_api_python.api import TodoistAPI
 from uuid import uuid4
 import requests
 import csv
+import random
 # from todoist.api import TodoistAPI
 # from todoist.managers.notes import NotesManager
 # from todoist.managers.items import ItemsManager
@@ -36,7 +37,8 @@ class Todoist_program(object):
             reader = csv.reader(file, delimiter='"')
             for row in reader:
                 quotes.append(row)
-
+        random_quote = random.choice(quotes)
+        print(random_quote)
         quotes = quotes[1:]  # remove the first element
         self.api = TodoistAPI(TOKEN)
 
