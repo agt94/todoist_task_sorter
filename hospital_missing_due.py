@@ -37,7 +37,7 @@ class Todoist_program(object):
             reader = csv.reader(file, delimiter='"')
             for row in reader:
                 quotes.append(row)
-        random_quote = random.choice(quotes)
+        self.random_quote = random.choice(quotes)
         print(random_quote)
         quotes = quotes[1:]  # remove the first element
         self.api = TodoistAPI(TOKEN)
@@ -77,6 +77,12 @@ class Todoist_program(object):
         print(self.test_notes)
         ##### Moving tasks:
         section_id= self.section_heaven_id
+
+    def assign_random_quote(self):
+        for item in self.api.notes:
+            if re.search(r'Hero Quest Journal', item.content):
+                self.api.update_task(task_id= item.id, description = self.random_quote )
+
 
     def move_task(self, task_id: str, project_id: str) -> bool:
         body = {
