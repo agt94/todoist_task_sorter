@@ -31,8 +31,8 @@ TOKEN = get_token()
 
 class Todoist_program(object):
     def __init__(self):
-        with open("quotes.csv", "r") as file:
-            reader = csv.reader(file)
+        with open("file.csv", "r") as file:
+            reader = csv.reader(file, delimiter='"')
             for row in reader:
                 print(row)
         self.api = TodoistAPI(TOKEN)
