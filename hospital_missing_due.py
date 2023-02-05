@@ -7,7 +7,7 @@ from datetime import datetime
 from todoist_api_python.api import TodoistAPI
 from uuid import uuid4
 import requests
-
+import csv
 # from todoist.api import TodoistAPI
 # from todoist.managers.notes import NotesManager
 # from todoist.managers.items import ItemsManager
@@ -31,6 +31,10 @@ TOKEN = get_token()
 
 class Todoist_program(object):
     def __init__(self):
+        with open("quotes.csv", "r") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                print(row)
         self.api = TodoistAPI(TOKEN)
 
         self.api.notes = self.api.get_tasks()
