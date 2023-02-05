@@ -83,7 +83,7 @@ class Todoist_program(object):
             if re.search(r'Hero Quest Journal', item.content):
                 print(item.id)
                 print(item.content)
-                self.api.update_task(task_id= item.id, description = self.random_quote )
+                self.api.update_task(task_id= item.id, description = "test" )
 
 
     def move_task(self, task_id: str, project_id: str) -> bool:
