@@ -81,6 +81,8 @@ class Todoist_program(object):
     def assign_random_quote(self):
         for item in self.api.notes:
             if re.search(r'Hero Quest Journal', item.content):
+                print(item.id)
+                print(item.content)
                 self.api.update_task(task_id= item.id, description = self.random_quote )
 
 
