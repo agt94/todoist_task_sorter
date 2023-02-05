@@ -38,7 +38,7 @@ class Todoist_program(object):
             for row in reader:
                 quotes.append(row)
         self.random_quote = random.choice(quotes)
-        print(random_quote)
+        print(self.random_quote)
         quotes = quotes[1:]  # remove the first element
         self.api = TodoistAPI(TOKEN)
 
