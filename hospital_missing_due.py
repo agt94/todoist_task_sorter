@@ -31,7 +31,7 @@ TOKEN = get_token()
 
 class Todoist_program(object):
     def __init__(self):
-        with open("file.csv", "r") as file:
+        with open("quotes.csv", "r") as file:
             reader = csv.reader(file, delimiter='"')
             for row in reader:
                 print(row)
