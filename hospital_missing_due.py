@@ -156,6 +156,7 @@ def main():
     todo = Todoist_program()
     todo.update_missing_due()
     todo.update_hospital()
+    todo.assign_random_quote()
     todo.send_to_calendar()
     print("run succesfully!")
 
