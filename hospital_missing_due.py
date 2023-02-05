@@ -31,10 +31,13 @@ TOKEN = get_token()
 
 class Todoist_program(object):
     def __init__(self):
+        quotes = []
         with open("quotes.csv", "r") as file:
             reader = csv.reader(file, delimiter='"')
             for row in reader:
-                print(row)
+                quotes.append(row)
+
+        quotes = quotes[1:]  # remove the first element
         self.api = TodoistAPI(TOKEN)
 
         self.api.notes = self.api.get_tasks()
