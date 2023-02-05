@@ -83,7 +83,7 @@ class Todoist_program(object):
             if re.search(r'Hero Quest Journal', item.content):
                 print(item.id)
                 print(item.content)
-                quote = self.random_quote.replace('"', '').replace("'", "")
+                quote = self.random_quote[0].replace('"', '').replace("'", "")
                 print(quote)
                 self.api.update_task(task_id= item.id, description = quote )
 
