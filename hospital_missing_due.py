@@ -80,13 +80,19 @@ class Todoist_program(object):
 
     def assign_random_quote(self):
         for item in self.api.notes:
-            if re.search(r'Daily Quote', item.content):
+            if re.search(r'📜DQ:', item.content):
                 print(item.id)
                 print(item.content)
                 quote = self.random_quote[0].replace('"', '').replace("'", "")
                 print(quote)
-                self.api.update_task(task_id= item.id, description = quote )
+                self.api.update_task(task_id= item.id, content = "📜DQ: "+quote )
 
+    def assign_imr_icon(self):
+        for item in self.api.notes:
+            if  item.content == "IMR":
+
+
+                self.api.update_task(task_id= item.id, content ="💼 IMR" )
 
     def move_task(self, task_id: str, project_id: str) -> bool:
         body = {
@@ -161,6 +167,7 @@ def main():
     todo.update_missing_due()
     todo.update_hospital()
     todo.assign_random_quote()
+    todo.assign_imr_icon()
     todo.send_to_calendar()
     print("run succesfully!")
 
