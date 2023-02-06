@@ -80,12 +80,12 @@ class Todoist_program(object):
 
     def assign_random_quote(self):
         for item in self.api.notes:
-            if re.search(r'📜DQ:', item.content):
+            if re.search(r'📜 DQ:', item.content):
                 print(item.id)
                 print(item.content)
                 quote = self.random_quote[0].replace('"', '').replace("'", "")
                 print(quote)
-                self.api.update_task(task_id= item.id, content = "📜DQ: "+quote )
+                self.api.update_task(task_id= item.id, content = "📜 DQ: "+quote )
 
     def assign_imr_icon(self):
         for item in self.api.notes:
