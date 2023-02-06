@@ -80,7 +80,7 @@ class Todoist_program(object):
 
     def assign_random_quote(self):
         for item in self.api.notes:
-            if re.search(r'Hero Quest Journal', item.content):
+            if re.search(r'Daily Quote', item.content):
                 print(item.id)
                 print(item.content)
                 quote = self.random_quote[0].replace('"', '').replace("'", "")
