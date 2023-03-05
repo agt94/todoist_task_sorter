@@ -94,6 +94,11 @@ class Todoist_program(object):
 
                 self.api.update_task(task_id= item.id, content ="💼 IMR" )
 
+    def assign_VILANOVA_icon(self):
+        for item in self.api.notes:
+            if item.content == "VILANOVA":
+                self.api.update_task(task_id=item.id, content="🟢 VILANOVA")
+
     def move_task(self, task_id: str, project_id: str) -> bool:
         body = {
             "commands": [
@@ -168,6 +173,7 @@ def main():
     todo.update_hospital()
     todo.assign_random_quote()
     todo.assign_imr_icon()
+    todo.assign_VILANOVA_icon()
     todo.send_to_calendar()
     print("run succesfully!")
 
