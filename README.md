@@ -1,2 +1,2 @@
 
-This is a todoist task sorter
+This is a todoist task sorter. 
