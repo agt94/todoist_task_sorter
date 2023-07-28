@@ -3,7 +3,7 @@ name: task_sorter_scheduled
 
 on:
   schedule:
-    - cron: "*/10 6-23 * * *"
+    - cron: "*/20 6-23 * * *"
 jobs:
   build:
 
