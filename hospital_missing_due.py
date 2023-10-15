@@ -154,9 +154,7 @@ class Todoist_program(object):
 
                 if item.parent_id is None and item.due is None: #sin fecha y que no sean subtasks en el Inbox
                     missing_due.append(item)
-            if self.inbox_id == item.project_id:
-
-                if self.alexa_label in item.labels and item.due is None: #sin fecha y que tenga el label Alexa
+            if self.alexa_label in item.labels and item.due is None: #sin fecha y que tenga el label Alexa
                     missing_due.append(item)
 
         return missing_due
