@@ -60,11 +60,12 @@ class Todoist_program(object):
         hospital_label_ids = [label.id for label in self.api.labels if label.name == 'hospital']
         self.calendar_label = 'calendar'
 
-
+        alexa_label_ids = [label.id for label in self.api.labels if label.name == 'Alexa']
+        assert (len(alexa_label_ids) == 1)
+        self.alexa_label = alexa_label_ids[0]
 
         assert (len(hospital_label_ids) == 1)
         self.hospital_label_id = hospital_label_ids[0]
-
 
         self.hospital = self.get_hospital()
 
@@ -75,8 +76,8 @@ class Todoist_program(object):
         print("Test notes:")
         self.test_notes = self.get_test_notes()
         print(self.test_notes)
-        ##### Moving tasks:
-        section_id= self.section_heaven_id
+        # Moving tasks:
+        section_id = self.section_heaven_id
 
     def assign_random_quote(self):
         for item in self.api.notes:
@@ -89,7 +90,7 @@ class Todoist_program(object):
 
     def assign_imr_icon(self):
         for item in self.api.notes:
-            if  item.content == "IMR":
+            if item.content == "IMR":
 
 
                 self.api.update_task(task_id= item.id, content ="💼 IMR" )
@@ -152,6 +153,10 @@ class Todoist_program(object):
             if self.inbox_id == item.project_id:
 
                 if item.parent_id is None and item.due is None: #sin fecha y que no sean subtasks en el Inbox
+                    missing_due.append(item)
+            if self.inbox_id == item.project_id:
+
+                if self.alexa_label in item.labels and item.due is None: #sin fecha y que tenga el label Alexa
                     missing_due.append(item)
 
         return missing_due
