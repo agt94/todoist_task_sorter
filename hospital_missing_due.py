@@ -145,7 +145,7 @@ class Todoist_program(object):
             self.move_task(task_id=item.id, project_id=self.hospital_id)
             #project_id = self.hospital_id  faltaría mover las tareas al proyecto hospital
 
-    # Dar fecha a aquellas tareas que se hayan añadido a la bandeja de entrada pero que no sean subtareas.
+    # Dar fecha a aquellas tareas que se hayan añadido a la bandeja de entrada pero que no sean subtareas...
     def get_no_duedate(self):
         missing_due = []
 
