@@ -52,6 +52,7 @@ class Todoist_program(object):
 
         inbox_id = [project.id for project in self.api.projects if project.name == 'Inbox']
         self.alexa_id = [project.id for project in self.api.projects if project.name == 'Lista de compras de Alexa'][0]
+        self.alexa_id_2 = [project.id for project in self.api.projects if project.name == 'Alexa To-do List'][0]
         calendar_id = [project.id for project in self.api.projects if project.name == 'calendar']
         self.inbox_id = inbox_id[0]
         self.hospital_id = hospital_id[0]
@@ -158,6 +159,8 @@ class Todoist_program(object):
 
         for item in self.api.notes:
             if self.alexa_id == item.project_id and item.due is None: #sin fecha y que tenga el label Alexa
+                missing_due.append(item)
+            if self.alexa_id_2 == item.project_id and item.due is None: #sin fecha y que tenga el label Alexa
                 missing_due.append(item)
 
         return missing_due
