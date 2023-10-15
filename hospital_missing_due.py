@@ -63,7 +63,7 @@ class Todoist_program(object):
         alexa_label_ids = [label.id for label in self.api.labels if label.name == 'Alexa']
         assert (len(alexa_label_ids) == 1)
         self.alexa_label = alexa_label_ids[0]
-
+        print(self.alexa_label)
         assert (len(hospital_label_ids) == 1)
         self.hospital_label_id = hospital_label_ids[0]
 
@@ -154,6 +154,7 @@ class Todoist_program(object):
 
                 if item.parent_id is None and item.due is None: #sin fecha y que no sean subtasks en el Inbox
                     missing_due.append(item)
+            
             if self.alexa_label in item.labels and item.due is None: #sin fecha y que tenga el label Alexa
                     missing_due.append(item)
 
