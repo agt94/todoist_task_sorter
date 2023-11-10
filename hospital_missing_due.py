@@ -101,7 +101,7 @@ class Todoist_program(object):
         for item in self.api.notes:
             if item.content == "VILANOVA":
                 self.api.update_task(task_id=item.id, content="🟢 VILANOVA")
-            if "DKV" in item.content:
+            if item.content == "DKV" or item.content == "DKV Meridiana":
                 self.api.update_task(task_id=item.id, content="🔴 "+item.content)
 
     def move_task(self, task_id: str, project_id: str) -> bool:
