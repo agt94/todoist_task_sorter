@@ -52,8 +52,8 @@ class Todoist_program(object):
         hospital_id = [project.id for project in self.api.projects if project.name == 'hospital']
 
         inbox_id = [project.id for project in self.api.projects if project.name == 'Inbox']
-        self.alexa_id = [project.id for project in self.api.projects if project.name == 'Lista de compras de Alexa'][0]
-        self.alexa_id_2 = [project.id for project in self.api.projects if project.name == 'Alexa To-do List'][0]
+        self.alexa_id = [project.id for project in self.api.projects if project.name == 'Alexa'][0]
+        self.alexa_id_2 = [project.id for project in self.api.projects if project.name == 'Alexa2'][0]
         calendar_id = [project.id for project in self.api.projects if project.name == 'calendar']
         self.inbox_id = inbox_id[0]
         self.hospital_id = hospital_id[0]
