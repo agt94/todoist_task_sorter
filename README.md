@@ -1,3 +1,3 @@
 
 This is an automated todoist task sorter...
-Feel free to explore the code for your own use. 
+Feel free to explore the code for your own use..
