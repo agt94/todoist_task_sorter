@@ -54,6 +54,7 @@ class Todoist_program(object):
         inbox_id = [project.id for project in self.api.projects if project.name == 'Inbox']
         self.alexa_id = [project.id for project in self.api.projects if project.name == 'Alexa'][0]
         self.alexa_id_2 = [project.id for project in self.api.projects if project.name == 'Alexa2'][0]
+        self.nidito_id = [project.id for project in self.api.projects if project.name == 'Nidito 🏡'][0]
         calendar_id = [project.id for project in self.api.projects if project.name == 'calendar']
         self.inbox_id = inbox_id[0]
         self.hospital_id = hospital_id[0]
@@ -173,7 +174,7 @@ class Todoist_program(object):
 
     def send_to_calendar(self):
         for item in self.api.notes:
-            if ((item.priority >= 3 ) or (self.calendar_label in item.labels )) and self.calendar_project_id != item.project_id and item.due is not None :
+            if ((item.priority >= 3 ) or (self.calendar_label in item.labels )) and self.nidito_id != item.project_id and self.calendar_project_id != item.project_id and item.due is not None :
                 new_labels = item.labels
                 new_labels.append(self.calendar_label)
                 self.api.update_task(task_id=item.id, labels=new_labels)
