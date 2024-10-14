@@ -174,7 +174,7 @@ class Todoist_program(object):
 
     def send_to_calendar(self):
         for item in self.api.notes:
-            if ((item.priority = 4 ) or (self.calendar_label in item.labels )) and self.nidito_id != item.project_id and self.calendar_project_id != item.project_id and item.due is not None :
+            if ((item.priority == 4 ) or (self.calendar_label in item.labels )) and self.nidito_id != item.project_id and self.calendar_project_id != item.project_id and item.due is not None :
                 new_labels = item.labels
                 new_labels.append(self.calendar_label)
                 self.api.update_task(task_id=item.id, labels=new_labels)
