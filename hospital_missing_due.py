@@ -86,11 +86,8 @@ class Todoist_program(object):
     def assign_time_to_calendar_tasks(self):
         self.calendar_tasks = self.get_calendar_tasks()
         for item in self.calendar_tasks:
-            if item.parent_id is None and item.due and item.due.date and not item.due.datetime and item.due.is_recurring == False and not item.content.strip().endswith("_"):
-                if item.due and item.due.date:
-                    due_year = int(item.due.date[:4])  # Extract the year from "YYYY-MM-DD"
-                    if due_year < 2025:
-                        continue  # Skip tasks before 2025
+            if item.parent_id is None and item.due and item.due.date and not item.due.datetime and item.due.is_recurring == False and not item.content.strip().endswith("_") and int(item.due.date[:4])<2025:
+                
                 default_hour = "8:45:00"
                 print(str(default_hour))
                 datetime_str = str(item.due.date) +"T"+default_hour+"Z"
