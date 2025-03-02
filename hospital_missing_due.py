@@ -79,12 +79,13 @@ class Todoist_program(object):
 
         print("Test notes:")
         self.test_notes = self.get_test_notes()
-        print(self.test_notes)
-        # Moving tasks:
+        #print(self.test_notes)
+
         section_id = self.section_heaven_id
         for item in self.test_notes:
             if item.parent_id is None and item['due']['date']  is not None and item['due']['datetime']  is None :
                 default_hour = "9:15:00"
+                print(str(default_hour))
                 datetime_str = str(item['due']['datetime'] ) +"T"+default_hour+"Z"
                 due_str= str()
                 print(str(item['due']['date']))
