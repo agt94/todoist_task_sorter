@@ -86,7 +86,7 @@ class Todoist_program(object):
     def assign_time_to_calendar_tasks(self):
         self.calendar_tasks = self.get_calendar_tasks()
         for item in self.calendar_tasks:
-            if item.parent_id is None and item.due and item.due.date and not item.due.datetime and item.due.is_recurring == False:
+            if item.parent_id is None and item.due and item.due.date and not item.due.datetime and item.due.is_recurring == False and not item.content.strip().endswith("_"):
 
                 default_hour = "8:45:00"
                 print(str(default_hour))
