@@ -83,7 +83,8 @@ class Todoist_program(object):
 
         section_id = self.section_heaven_id
         for item in self.test_notes:
-            if item.parent_id is None and item.due.date is not None and item.due.datetime  is None :
+            if item.parent_id is None and item.due and item.due.date and not item.due.datetime:
+
                 default_hour = "9:15:00"
                 print(str(default_hour))
                 datetime_str = str(item.due.date) +"T"+default_hour+"Z"
