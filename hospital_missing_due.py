@@ -82,6 +82,12 @@ class Todoist_program(object):
         print(self.test_notes)
         # Moving tasks:
         section_id = self.section_heaven_id
+        for item in self.test_notes:
+            if item.parent_id is None and item.datetime is None :
+                default_hour = "9:15:00"
+                datetime_str = str(item.datetime) +"T"+default_hour
+                due_str= str()
+                self.api.update_task(datetime=item.datetime_str)
 
     def assign_random_quote(self):
         for item in self.api.notes:
