@@ -79,7 +79,7 @@ class Todoist_program(object):
 
         print("Test notes:")
         self.test_notes = self.get_test_notes()
-        #print(self.test_notes)
+        print(self.test_notes)
 
         section_id = self.section_heaven_id
 
