@@ -90,7 +90,7 @@ class Todoist_program(object):
 
                 default_hour = "8:45:00"
                 #print(str(default_hour))
-                datetime_str = str(item.due.date) +"T"+default_hour+".000000Z"
+                datetime_str = str(item.due.date) +"T"+default_hour+"Z"
 
                 #print(str(item.due.date))
                 #print(str(datetime_str))
