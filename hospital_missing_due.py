@@ -85,9 +85,9 @@ class Todoist_program(object):
         for item in self.test_notes:
             if item.parent_id is None and item.due.datetime is None :
                 default_hour = "9:15:00"
-                datetime_str = str(item.due.datetime) +"T"+default_hour
+                datetime_str = str(item.due.datetime) +"T"+default_hour+"Z"
                 due_str= str()
-                self.api.update_task(datetime=item.datetime_str)
+                self.api.update_task(due_datetime=item.datetime_str)
 
     def assign_random_quote(self):
         for item in self.api.notes:
