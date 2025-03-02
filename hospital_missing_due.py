@@ -91,6 +91,7 @@ class Todoist_program(object):
                 due_str= str()
                 print(str(item.due.date))
                 print(str(datetime_str))
+                self.api.update_task(task_id=item.id, due_datetime = datetime_str)
                 #self.api.update_task(due_datetime=datetime_str)
 
     def assign_random_quote(self):
