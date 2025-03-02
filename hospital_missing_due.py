@@ -83,9 +83,9 @@ class Todoist_program(object):
         # Moving tasks:
         section_id = self.section_heaven_id
         for item in self.test_notes:
-            if item.parent_id is None and item.datetime is None :
+            if item.parent_id is None and item.due.datetime is None :
                 default_hour = "9:15:00"
-                datetime_str = str(item.datetime) +"T"+default_hour
+                datetime_str = str(item.due.datetime) +"T"+default_hour
                 due_str= str()
                 self.api.update_task(datetime=item.datetime_str)
 
