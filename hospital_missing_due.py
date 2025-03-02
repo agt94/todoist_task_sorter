@@ -79,14 +79,16 @@ class Todoist_program(object):
 
         print("Test notes:")
         self.test_notes = self.get_test_notes()
-        print(self.test_notes)
+        #print(self.test_notes)
 
         section_id = self.section_heaven_id
 
-        for item in self.test_notes:
+    def assign_time_to_calendar_tasks(self):
+        self.calendar_tasks = self.get_calendar_tasks()
+        for item in self.calendar_tasks:
             if item.parent_id is None and item.due and item.due.date and not item.due.datetime:
 
-                default_hour = "11:45:00"
+                default_hour = "8:45:00"
                 print(str(default_hour))
                 datetime_str = str(item.due.date) +"T"+default_hour+"Z"
                 due_str= str()
@@ -140,6 +142,13 @@ class Todoist_program(object):
             if item.project_id == self.testing_id: #
                 test.append(item)
         return test
+    def get_calendar_tasks(self):
+        calendar = []
+        for item in self.api.notes:
+            if item.project_id == self.calendar_project_id: #
+                calendar.append(item)
+        return calendar
+
 
 # Funciones para asignar etiquetas de hospital a tareas con numeros de historia o palabras clave
 
@@ -200,6 +209,7 @@ def main():
     todo.assign_imr_icon()
     todo.assign_VILANOVA_icon()
     todo.send_to_calendar()
+    todo.assign_time_to_calendar_tasks()
     print("run succesfully!")
 
 if __name__ == '__main__':
