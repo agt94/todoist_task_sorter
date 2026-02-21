@@ -1,7 +1,7 @@
 import os
 import re
 import logging
-from datetime import datetime
+from datetime import datetime, date, time, timezone
 #from dateutil import tz 
 # comment
 
@@ -41,6 +41,15 @@ def flatten_paginated(iterator):
     for page in iterator:
         items.extend(page)
     return items
+
+
+def due_has_time(due):
+    """Check if a Due object has a specific time set (not just a date).
+    
+    In v3.x, due.date is a datetime.date (date-only) or datetime.datetime (with time).
+    There is no separate .datetime attribute anymore.
+    """
+    return isinstance(due.date, datetime)
 
 
 #https://github.com/Doist/todoist-api-python/issues/8  move tasks to different project
@@ -102,16 +111,20 @@ class Todoist_program(object):
     def assign_time_to_calendar_tasks(self):
         self.calendar_tasks = self.get_calendar_tasks()
         for item in self.calendar_tasks:
-            if item.parent_id is None and item.due and item.due.date and not item.due.datetime  and not item.content.strip().endswith("_") and int(str(item.due.date)[:4])>2024 and item.due.is_recurring == False:
+            # v3.x: due.date is a date or datetime object; no .datetime attribute
+            # due_has_time() checks if it's a datetime (has time) vs date (date-only)
+            if (item.parent_id is None
+                and item.due
+                and item.due.date
+                and not due_has_time(item.due)
+                and not item.content.strip().endswith("_")
+                and item.due.date.year > 2024
+                and item.due.is_recurring == False):
 
-                default_hour = "08:45:00"
-                #print(str(default_hour))
-                datetime_str = str(item.due.date) +"T"+default_hour+"Z"
-
-                #print(str(item.due.date))
-                #print(str(datetime_str))
-                self.api.update_task(task_id=item.id, due_datetime = datetime_str)
-                #self.api.update_task(due_datetime=datetime_str)
+                # Build a datetime at 08:45 UTC from the date-only due date
+                due_dt = datetime.combine(item.due.date, time(8, 45, 0), tzinfo=timezone.utc)
+                # v3.x update_task accepts due_datetime as a Python datetime object
+                self.api.update_task(task_id=item.id, due_datetime=due_dt)
 
     def assign_random_quote(self):
         for item in self.api.notes:
