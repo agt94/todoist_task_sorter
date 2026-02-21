@@ -29,6 +29,20 @@ def get_token():
 
 TOKEN = get_token()
 
+
+def flatten_paginated(iterator):
+    """Flatten paginated results from todoist-api-python v3.x.
+    
+    In v3.x, methods like get_tasks(), get_projects(), get_labels(), get_sections()
+    return an Iterator of pages (each page is a list of objects).
+    This helper flattens them into a single list.
+    """
+    items = []
+    for page in iterator:
+        items.extend(page)
+    return items
+
+
 #https://github.com/Doist/todoist-api-python/issues/8  move tasks to different project
 
 class Todoist_program(object):
@@ -43,10 +57,12 @@ class Todoist_program(object):
         quotes = quotes[1:]  # remove the first element
         self.api = TodoistAPI(TOKEN)
 
-        self.api.notes = self.api.get_tasks()
-        self.api.projects = self.api.get_projects()
-        self.api.labels = self.api.get_labels()
-        self.api.sections = self.api.get_sections()
+        # v3.x returns paginated iterators — flatten them into lists
+        self.api.notes = flatten_paginated(self.api.get_tasks())
+        self.api.projects = flatten_paginated(self.api.get_projects())
+        self.api.labels = flatten_paginated(self.api.get_labels())
+        self.api.sections = flatten_paginated(self.api.get_sections())
+
         self.testing_id = [project.id for project in self.api.projects if project.name == 'testing'][0]
         self.section_heaven_id = [section.id for section in self.api.sections if section.name == 'Heaven'][0]
         hospital_id = [project.id for project in self.api.projects if project.name == 'hospital']
@@ -86,7 +102,7 @@ class Todoist_program(object):
     def assign_time_to_calendar_tasks(self):
         self.calendar_tasks = self.get_calendar_tasks()
         for item in self.calendar_tasks:
-            if item.parent_id is None and item.due and item.due.date and not item.due.datetime  and not item.content.strip().endswith("_") and int(item.due.date[:4])>2024 and item.due.is_recurring == False:
+            if item.parent_id is None and item.due and item.due.date and not item.due.datetime  and not item.content.strip().endswith("_") and int(str(item.due.date)[:4])>2024 and item.due.is_recurring == False:
 
                 default_hour = "08:45:00"
                 #print(str(default_hour))
