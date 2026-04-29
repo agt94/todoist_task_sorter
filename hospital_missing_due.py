@@ -279,7 +279,7 @@ class Todoist_program(object):
             labels = list(item.labels or [])
 
             should_move = (
-                (item.priority == 1 or self.calendar_label in labels)
+                (item.priority == 4 or self.calendar_label in labels)
                 and item.project_id not in {self.nidito_id, self.calendar_project_id}
                 and item.due is not None
             )
