@@ -1,42 +1,34 @@
 import os
 import re
+import json
 import logging
-from datetime import datetime, date, time, timezone
-#from dateutil import tz 
-# comment
-
-from todoist_api_python.api import TodoistAPI
+from datetime import datetime, time, timezone
 from uuid import uuid4
 import requests
 import csv
 import random
-# from todoist.api import TodoistAPI
-# from todoist.managers.notes import NotesManager
-# from todoist.managers.items import ItemsManager
+
+from todoist_api_python.api import TodoistAPI
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 TODOIST_DATE_FORMAT = "%Y-%m-%d"
-
-red_dot = '\U0001f534'
+red_dot = "\U0001f534"
 
 
 def get_token():
-    token = os.getenv('TODOIST_APIKEY')
+    token = os.getenv("TODOIST_APIKEY")
     if not token:
-        raise Exception('Please set the API token in environment variable.')
+        raise Exception("Please set the API token in environment variable TODOIST_APIKEY.")
     return token
+
 
 TOKEN = get_token()
 
 
 def flatten_paginated(iterator):
-    """Flatten paginated results from todoist-api-python v3.x.
-    
-    In v3.x, methods like get_tasks(), get_projects(), get_labels(), get_sections()
-    return an Iterator of pages (each page is a list of objects).
-    This helper flattens them into a single list.
-    """
+    """Flatten paginated results from todoist-api-python v3.x/v4.x."""
     items = []
     for page in iterator:
         items.extend(page)
@@ -44,194 +36,275 @@ def flatten_paginated(iterator):
 
 
 def due_has_time(due):
-    """Check if a Due object has a specific time set (not just a date).
-    
-    In v3.x, due.date is a datetime.date (date-only) or datetime.datetime (with time).
-    There is no separate .datetime attribute anymore.
-    """
+    """In current Todoist SDK models, due.date is date-only or datetime-with-time."""
     return isinstance(due.date, datetime)
 
 
-#https://github.com/Doist/todoist-api-python/issues/8  move tasks to different project
-
 class Todoist_program(object):
     def __init__(self):
-        quotes = []
-        with open("quotes.csv", "r") as file:
-            reader = csv.reader(file, delimiter='"')
-            for row in reader:
-                quotes.append(row)
-        self.random_quote = random.choice(quotes)
-        print(self.random_quote)
-        quotes = quotes[1:]  # remove the first element
+        self.random_quote = self.load_random_quote()
+        if self.random_quote:
+            print(self.random_quote)
+
         self.api = TodoistAPI(TOKEN)
+        self.refresh_cache()
 
-        # v3.x returns paginated iterators — flatten them into lists
-        self.api.notes = flatten_paginated(self.api.get_tasks())
-        self.api.projects = flatten_paginated(self.api.get_projects())
-        self.api.labels = flatten_paginated(self.api.get_labels())
-        self.api.sections = flatten_paginated(self.api.get_sections())
+        self.testing_id = self.get_project_id("testing")
+        self.section_heaven_id = self.get_section_id("Heaven")
+        self.hospital_id = self.get_project_id("hospital")
+        self.inbox_id = self.get_project_id("Inbox")
+        self.alexa_id = self.get_project_id("Alexa")
+        self.alexa_id_2 = self.get_project_id("Alexa2")
+        self.nidito_id = self.get_project_id("Nidito 🏡")
+        self.calendar_project_id = self.get_project_id("calendar")
 
-        self.testing_id = [project.id for project in self.api.projects if project.name == 'testing'][0]
-        self.section_heaven_id = [section.id for section in self.api.sections if section.name == 'Heaven'][0]
-        hospital_id = [project.id for project in self.api.projects if project.name == 'hospital']
+        self.hospital_label = "hospital"
+        self.calendar_label = "calendar"
 
-        inbox_id = [project.id for project in self.api.projects if project.name == 'Inbox']
-        self.alexa_id = [project.id for project in self.api.projects if project.name == 'Alexa'][0]
-        self.alexa_id_2 = [project.id for project in self.api.projects if project.name == 'Alexa2'][0]
-        self.nidito_id = [project.id for project in self.api.projects if project.name == 'Nidito 🏡'][0]
-        calendar_id = [project.id for project in self.api.projects if project.name == 'calendar']
-        self.inbox_id = inbox_id[0]
-        self.hospital_id = hospital_id[0]
-        self.calendar_project_id = calendar_id[0]
+        hospital_label_ids = [label.id for label in self.api.labels if label.name == "hospital"]
+        alexa_label_ids = [label.id for label in self.api.labels if label.name == "Alexa"]
 
-        self.hospital_label = 'hospital'
-        hospital_label_ids = [label.id for label in self.api.labels if label.name == 'hospital']
-        self.calendar_label = 'calendar'
-
-        alexa_label_ids = [label.id for label in self.api.labels if label.name == 'Alexa']
-        assert (len(alexa_label_ids) == 1)
+        assert len(alexa_label_ids) == 1
         self.alexa_label = alexa_label_ids[0]
         print(self.alexa_label)
-        assert (len(hospital_label_ids) == 1)
+
+        assert len(hospital_label_ids) == 1
         self.hospital_label_id = hospital_label_ids[0]
 
         self.hospital = self.get_hospital()
-
         self.missing_due = self.get_no_duedate()
+
         print("Missing due")
         print(self.missing_due)
 
         print("Test notes:")
         self.test_notes = self.get_test_notes()
-        #print(self.test_notes)
 
-        section_id = self.section_heaven_id
+    def load_random_quote(self):
+        quotes = []
+        try:
+            with open("quotes.csv", "r", encoding="utf-8", newline="") as file:
+                reader = csv.reader(file, delimiter='"')
+                for row in reader:
+                    if row:
+                        quotes.append(row)
+        except FileNotFoundError:
+            logger.warning("quotes.csv not found; quote update skipped.")
+            return None
+
+        if len(quotes) > 1:
+            quotes = quotes[1:]
+
+        return random.choice(quotes) if quotes else None
+
+    def refresh_cache(self):
+        """Refresh local snapshots after API writes."""
+        self.api.notes = flatten_paginated(self.api.get_tasks())
+        self.api.projects = flatten_paginated(self.api.get_projects())
+        self.api.labels = flatten_paginated(self.api.get_labels())
+        self.api.sections = flatten_paginated(self.api.get_sections())
+
+    def get_project_id(self, name):
+        matches = [project.id for project in self.api.projects if project.name == name]
+        if not matches:
+            raise ValueError(f"Todoist project not found: {name}")
+        return matches[0]
+
+    def get_section_id(self, name):
+        matches = [section.id for section in self.api.sections if section.name == name]
+        if not matches:
+            raise ValueError(f"Todoist section not found: {name}")
+        return matches[0]
+
+    def sync_command(self, command_type, args):
+        """Run one Todoist Sync API v1 command and fail loudly if Todoist reports an error."""
+        command_uuid = str(uuid4())
+        command = {
+            "type": command_type,
+            "uuid": command_uuid,
+            "args": args,
+        }
+
+        response = requests.post(
+            "https://api.todoist.com/api/v1/sync",
+            headers={"Authorization": f"Bearer {TOKEN}"},
+            data={"commands": json.dumps([command])},
+            timeout=30,
+        )
+        response.raise_for_status()
+
+        payload = response.json()
+        status = payload.get("sync_status", {}).get(command_uuid)
+
+        if status != "ok":
+            raise RuntimeError(
+                f"Todoist sync command failed. "
+                f"command={command_type}, args={args}, status={status}, payload={payload}"
+            )
+
+        return payload
+
+    def move_task(self, task_id: str, project_id: str) -> bool:
+        self.sync_command(
+            "item_move",
+            {
+                "id": str(task_id),
+                "project_id": str(project_id),
+            },
+        )
+        return True
+
+    def get_test_notes(self):
+        test = []
+        for item in self.api.notes:
+            if item.project_id == self.testing_id:
+                test.append(item)
+        return test
+
+    def get_calendar_tasks(self):
+        calendar = []
+        for item in self.api.notes:
+            if item.project_id == self.calendar_project_id:
+                calendar.append(item)
+        return calendar
 
     def assign_time_to_calendar_tasks(self):
+        self.refresh_cache()
         self.calendar_tasks = self.get_calendar_tasks()
+
         for item in self.calendar_tasks:
-            # v3.x: due.date is a date or datetime object; no .datetime attribute
-            # due_has_time() checks if it's a datetime (has time) vs date (date-only)
-            if (item.parent_id is None
+            if (
+                item.parent_id is None
                 and item.due
                 and item.due.date
                 and not due_has_time(item.due)
                 and not item.content.strip().endswith("_")
                 and item.due.date.year > 2024
-                and item.due.is_recurring == False):
-
-                # Build a datetime at 08:45 UTC from the date-only due date
+                and item.due.is_recurring is False
+            ):
                 due_dt = datetime.combine(item.due.date, time(8, 45, 0), tzinfo=timezone.utc)
-                # v3.x update_task accepts due_datetime as a Python datetime object
                 self.api.update_task(task_id=item.id, due_datetime=due_dt)
 
     def assign_random_quote(self):
+        if not self.random_quote:
+            return
+
         for item in self.api.notes:
-            if re.search(r'📜 DQ:', item.content):
+            if re.search(r"📜 DQ:", item.content):
                 print(item.id)
                 print(item.content)
-                quote = self.random_quote[0].replace('"', '').replace("'", "")
+                quote = self.random_quote[0].replace('"', "").replace("'", "")
                 print(quote)
-                self.api.update_task(task_id= item.id, content = "📜 DQ: "+quote )
+                self.api.update_task(task_id=item.id, content="📜 DQ: " + quote)
 
     def assign_imr_icon(self):
         for item in self.api.notes:
             if item.content == "IMR":
-
-
-                self.api.update_task(task_id= item.id, content ="💼 IMR" )
+                self.api.update_task(task_id=item.id, content="💼 IMR")
 
     def assign_VILANOVA_icon(self):
         for item in self.api.notes:
             if item.content == "VILANOVA":
                 self.api.update_task(task_id=item.id, content="🟢 VILANOVA")
             if item.content == "DKV" or item.content == "DKV Meridiana":
-                self.api.update_task(task_id=item.id, content="🔴 "+item.content)
-
-    def move_task(self, task_id: str, project_id: str) -> bool:
-        body = {
-            "commands": [
-                {
-                    "type": "item_move",
-                    "args": {"id": task_id, "project_id": project_id},
-                    "uuid": uuid4().hex,
-                },
-            ],
-        }
-        response = requests.post(
-            "https://api.todoist.com/sync/v9/sync",
-            headers={"Authorization": f"Bearer {TOKEN}"},
-            json=body,
-        )
-        return response.ok
-    def get_test_notes(self):
-        test = []
-        for item in self.api.notes:
-            if item.project_id == self.testing_id: #
-                test.append(item)
-        return test
-    def get_calendar_tasks(self):
-        calendar = []
-        for item in self.api.notes:
-            if item.project_id == self.calendar_project_id: #
-                calendar.append(item)
-        return calendar
-
-
-# Funciones para asignar etiquetas de hospital a tareas con numeros de historia o palabras clave
+                self.api.update_task(task_id=item.id, content="🔴 " + item.content)
 
     def get_hospital(self):
         hospital = []
         for item in self.api.notes:
-            if re.search(r'[0-9]{5}|revis|AP |ap |PV |jefe |cultiv|cura|herida|biops|comit|coment', item.content) and item.parent_id is None and self.hospital_label not in item.labels and self.inbox_id == item.project_id : #
-                if re.search(r'http', item.content):
+            if (
+                re.search(
+                    r"[0-9]{5}|revis|AP |ap |PV |jefe |cultiv|cura|herida|biops|comit|coment",
+                    item.content,
+                )
+                and item.parent_id is None
+                and self.hospital_label not in (item.labels or [])
+                and self.inbox_id == item.project_id
+            ):
+                if re.search(r"http", item.content):
                     pass
                 else:
                     hospital.append(item)
         return hospital
 
     def update_hospital(self):
+        moved = 0
         for item in self.hospital:
-            new_labels = item.labels
-            new_labels.append(self.hospital_label)
-            self.api.update_task(task_id = item.id, labels = new_labels )
-            self.move_task(task_id=item.id, project_id=self.hospital_id)
-            #project_id = self.hospital_id  faltaría mover las tareas al proyecto hospital
+            labels = list(item.labels or [])
 
-    # Dar fecha a aquellas tareas que se hayan añadido a la bandeja de entrada pero que no sean subtareas...
+            if self.hospital_label not in labels:
+                labels.append(self.hospital_label)
+                self.api.update_task(task_id=item.id, labels=labels)
+
+            self.move_task(task_id=item.id, project_id=self.hospital_id)
+            moved += 1
+
+        if moved:
+            self.refresh_cache()
+
+        return moved
+
     def get_no_duedate(self):
         missing_due = []
 
         for item in self.api.notes:
             if self.inbox_id == item.project_id:
-
-                if item.parent_id is None and item.due is None: #sin fecha y que no sean subtasks en el Inbox
+                if item.parent_id is None and item.due is None:
                     missing_due.append(item)
 
         for item in self.api.notes:
-            if self.alexa_id == item.project_id and item.due is None: #sin fecha y que tenga el label Alexa
+            if self.alexa_id == item.project_id and item.due is None:
                 missing_due.append(item)
-            if self.alexa_id_2 == item.project_id and item.due is None: #sin fecha y que tenga el label Alexa
+            if self.alexa_id_2 == item.project_id and item.due is None:
                 missing_due.append(item)
 
         return missing_due
 
     def update_missing_due(self):
+        updated = 0
         for item in self.missing_due:
-            due_date = "today"
-            self.api.update_task(task_id = item.id, due_string = due_date)
+            self.api.update_task(task_id=item.id, due_string="today")
+            updated += 1
+
+        if updated:
+            self.refresh_cache()
+
+        return updated
 
     def send_to_calendar(self):
-        for item in self.api.notes:
-            if ((item.priority == 4 ) or (self.calendar_label in item.labels )) and self.nidito_id != item.project_id and self.calendar_project_id != item.project_id and item.due is not None :
-                new_labels = item.labels
-                new_labels.append(self.calendar_label)
-                self.api.update_task(task_id=item.id, labels=new_labels)
-                self.move_task(task_id=item.id, project_id=self.calendar_project_id)
+        self.refresh_cache()
+
+        moved = 0
+        for item in list(self.api.notes):
+            labels = list(item.labels or [])
+
+            should_move = (
+                (item.priority == 4 or self.calendar_label in labels)
+                and item.project_id not in {self.nidito_id, self.calendar_project_id}
+                and item.due is not None
+            )
+
+            if not should_move:
+                continue
+
+            if self.calendar_label not in labels:
+                labels.append(self.calendar_label)
+                self.api.update_task(task_id=item.id, labels=labels)
+
+            self.move_task(task_id=item.id, project_id=self.calendar_project_id)
+            moved += 1
+            logger.info("Moved task to calendar: %s | %s", item.id, item.content)
+
+        if moved:
+            self.refresh_cache()
+
+        print(f"Moved to calendar: {moved}")
+        return moved
+
 
 def main():
     todo = Todoist_program()
+
     todo.update_missing_due()
     todo.update_hospital()
     todo.assign_random_quote()
@@ -239,7 +312,9 @@ def main():
     # todo.assign_VILANOVA_icon()
     todo.send_to_calendar()
     todo.assign_time_to_calendar_tasks()
-    print("run succesfully!")
 
-if __name__ == '__main__':
+    print("run successfully!")
+
+
+if __name__ == "__main__":
     main()
