@@ -395,13 +395,13 @@ def main():
     todo = Todoist_program()
 
     todo.update_missing_due()
-    todo.update_hospital()
+    #todo.update_hospital()
     todo.assign_random_quote()
     # todo.assign_imr_icon()
     # todo.assign_VILANOVA_icon()
     todo.send_to_calendar()
     todo.assign_time_to_calendar_tasks()
-    todo.remove_due_time_from_test_project()
+    # todo.remove_due_time_from_test_project()
 
     print("run successfully!")
 
