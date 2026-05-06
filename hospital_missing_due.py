@@ -336,7 +336,7 @@ class Todoist_program(object):
         """
         self.refresh_cache()
 
-        test_project_id = self.get_project_id("testing")
+        test_project_id = self.get_project_id("calendar_2")
 
         updated = 0
         skipped_recurring = 0
