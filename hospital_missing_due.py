@@ -2,7 +2,7 @@ import os
 import re
 import json
 import logging
-from datetime import datetime, time, timezone
+from datetime import date, datetime, time, timezone
 from uuid import uuid4
 import requests
 import csv
@@ -36,9 +36,35 @@ def flatten_paginated(iterator):
 
 
 def due_has_time(due):
-    """In current Todoist SDK models, due.date is date-only or datetime-with-time."""
-    return isinstance(due.date, datetime)
+    """Return True if Todoist due.date contains a time component."""
+    due_value = getattr(due, "date", None)
 
+    if isinstance(due_value, datetime):
+        return True
+
+    if isinstance(due_value, str):
+        return "T" in due_value
+
+    return False
+
+
+def due_date_only(due):
+    """Return a Python date object from Todoist due.date, stripping any time."""
+    due_value = getattr(due, "date", None)
+
+    if due_value is None:
+        return None
+
+    if isinstance(due_value, datetime):
+        return due_value.date()
+
+    if isinstance(due_value, date):
+        return due_value
+
+    if isinstance(due_value, str):
+        return datetime.fromisoformat(due_value.replace("Z", "+00:00")).date()
+
+    raise TypeError(f"Unsupported Todoist due.date type: {type(due_value)}")
 
 class Todoist_program(object):
     def __init__(self):
@@ -300,7 +326,70 @@ class Todoist_program(object):
 
         print(f"Moved to calendar: {moved}")
         return moved
+    def remove_due_time_from_test_project(self, skip_recurring=True):
+        """
+        Remove only the due time from all tasks in project 'test',
+        preserving the due date.
 
+        By default, recurring tasks are skipped to avoid accidentally
+        converting recurring due dates into one-off dates.
+        """
+        self.refresh_cache()
+
+        test_project_id = self.get_project_id("testing")
+
+        updated = 0
+        skipped_recurring = 0
+        skipped_without_time = 0
+
+        for item in list(self.api.notes):
+            if item.project_id != test_project_id:
+                continue
+
+            if item.due is None or getattr(item.due, "date", None) is None:
+                continue
+
+            if not due_has_time(item.due):
+                skipped_without_time += 1
+                continue
+
+            if skip_recurring and getattr(item.due, "is_recurring", False):
+                skipped_recurring += 1
+                logger.warning(
+                    "Skipped recurring task with due time: %s | %s",
+                    item.id,
+                    item.content,
+                )
+                continue
+
+            date_only = due_date_only(item.due)
+
+            self.api.update_task(
+                task_id=item.id,
+                due_date=date_only,
+            )
+
+            updated += 1
+            logger.info(
+                "Removed due time from task: %s | %s | new due_date=%s",
+                item.id,
+                item.content,
+                date_only,
+            )
+
+        if updated:
+            self.refresh_cache()
+
+        print(f"Removed due time in project 'test': {updated}")
+        print(f"Skipped already date-only tasks in project 'test': {skipped_without_time}")
+
+        if skipped_recurring:
+            print(
+                f"Skipped recurring tasks with time in project 'test': {skipped_recurring}. "
+                "Set skip_recurring=False only if you accept losing recurrence behavior."
+            )
+
+        return updated
 
 def main():
     todo = Todoist_program()
@@ -312,6 +401,7 @@ def main():
     # todo.assign_VILANOVA_icon()
     todo.send_to_calendar()
     todo.assign_time_to_calendar_tasks()
+    todo.remove_due_time_from_test_project()
 
     print("run successfully!")
 
